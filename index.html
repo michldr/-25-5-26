@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יום מהו"ת 25/5/26</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      background: #f4f4f4; 
+      text-align: right; 
+    }
+    h1 { 
+      text-align: center; 
+      color: #2c3e50; 
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+    .time-slot {
+      background: white;
+      padding: 16px 20px;
+      margin: 8px 0;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      font-size: 17.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .time-slot:hover { transform: translateY(-2px); }
+    .taken { 
+      background: #e74c3c; 
+      color: white; 
+      cursor: default; 
+    }
+
+    /* Custom Dialog */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 340px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      text-align: right;
+    }
+    .modal input {
+      width: 100%;
+      padding: 12px;
+      font-size: 17px;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+    .modal button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .ok-btn { background: #27ae60; color: white; }
+    .cancel-btn-modal { background: #95a5a6; color: white; }
+
+    button {
+      padding: 14px 24px;
+      font-size: 17px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 320px;
+    }
+    .cancel-btn { background: #e74c3c; color: white; }
+    .admin-btn { 
+      background: #8e44ad; 
+      color: white; 
+      font-size: 15px;
+      max-width: 220px;
+      margin: 20px auto;
+      display: block;
+    }
+    .status { 
+      text-align: center; 
+      margin: 15px; 
+      font-weight: bold; 
+      padding: 12px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>יום מהו"ת 25/5/26</h1>
+  <div id="slots"></div>
+  <div class="status" id="status"></div>
+
+  <button class="cancel-btn" onclick="cancelMyBooking()">בטל את ההרשמה שלי</button>
+  <button class="admin-btn" onclick="clearAllBookings()">נקה הכל (מנהל)</button>
+
+  <!-- Custom Dialog -->
+  <div id="dialog" class="modal">
+    <div class="modal-content">
+      <h3 id="dialog-title"></h3>
+      <input type="text" id="dialog-input" placeholder="הקלד כאן...">
+      <div class="modal-buttons">
+        <button class="cancel-btn-modal" onclick="closeDialog()">ביטול</button>
+        <button class="ok-btn" onclick="confirmDialog()">אישור</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slots = [
+      "15:00", "15:10", "15:20", "15:30", "15:40", "15:50",
+      "16:00", "16:10", "16:20", "16:30", "16:40", "16:50",
+      "17:00", "17:10", "17:20", "17:30", "17:40", "17:50",
+      "18:00", "18:10", "18:20", "18:30"
+    ];
+
+    let bookings = JSON.parse(localStorage.getItem('bookings')) || {};
+    let currentTime = null;
+    let currentStep = null; // 'parent' or 'child'
+
+    const ADMIN_PASSWORD = "1234";
+
+    function renderSlots() {
+      const container = document.getElementById('slots');
+      container.innerHTML = '';
+      
+      slots.forEach(time => {
+        const div = document.createElement('div');
+        div.className = `time-slot ${bookings[time] ? 'taken' : ''}`;
+        
+        if (bookings[time]) {
+          const b = bookings[time];
+          div.innerHTML = `${time} — <strong>${b.parent}</strong> (${b.child})`;
+        } else {
+          div.innerHTML = `${time} — <span style="color:#27ae60">פנוי</span>`;
+          div.onclick = () => bookSlot(time);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function bookSlot(time) {
+      currentTime = time;
+      currentStep = 'parent';
+      showDialog("שם ההורה", "");
+    }
+
+    function showDialog(title, placeholder) {
+      document.getElementById('dialog-title').textContent = title;
+      document.getElementById('dialog-input').placeholder = placeholder;
+      document.getElementById('dialog-input').value = '';
+      document.getElementById('dialog').style.display = 'flex';
+      document.getElementById('dialog-input').focus();
+    }
+
+    function closeDialog() {
+      document.getElementById('dialog').style.display = 'none';
+    }
+
+    function confirmDialog() {
+      const value = document.getElementById('dialog-input').value.trim();
+      if (!value) {
+        alert("יש למלא את השדה");
+        return;
+      }
+
+      if (currentStep === 'parent') {
+        bookings[currentTime] = { parent: value };
+        currentStep = 'child';
+        closeDialog();
+        setTimeout(() => {
+          showDialog("שם הילד / הילדה", "");
+        }, 300);
+      } else {
+        bookings[currentTime].child = value;
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        closeDialog();
+        renderSlots();
+        showStatus(`✅ נרשם בהצלחה: ${bookings[currentTime].parent} (${value}) לשעה ${currentTime}`, '#d4edda');
+      }
+    }
+
+    function cancelMyBooking() {
+      const parentName = prompt("הכנס את שם ההורה לביטול:");
+      if (!parentName || parentName.trim() === "") return;
+
+      let found = false;
+      Object.keys(bookings).forEach(time => {
+        if (bookings[time] && bookings[time].parent.toLowerCase() === parentName.trim().toLowerCase()) {
+          delete bookings[time];
+          found = true;
+        }
+      });
+
+      if (found) {
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        renderSlots();
+        showStatus("✅ ההרשמה בוטלה בהצלחה", '#f8d7da');
+      } else {
+        alert("❌ לא נמצאה הרשמה לשם ההורה שהוזן");
+      }
+    }
+
+    function clearAllBookings() {
+      const password = prompt("הכנס סיסמת מנהל:");
+      if (password === ADMIN_PASSWORD) {
+        if (confirm("⚠️ האם אתה בטוח שברצונך למחוק את כל ההרשמות?")) {
+          bookings = {};
+          localStorage.removeItem('bookings');
+          renderSlots();
+          showStatus("🧹 כל ההרשמות נמחקו בהצלחה", '#fff3cd');
+        }
+      } else {
+        alert("❌ סיסמה שגויה");
+      }
+    }
+
+    function showStatus(message, color) {
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = message;
+      statusEl.style.background = color;
+      setTimeout(() => {
+        statusEl.innerHTML = '';
+        statusEl.style.background = '';
+      }, 5000);
+    }
+
+    // טעינה ראשונית
+    renderSlots();
+  </script>
+</body>
+</html>
