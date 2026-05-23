@@ -51,13 +51,11 @@
 
     async function loadBookings() {
       try {
-        const res = await fetch(WEB_APP_URL + "?t=" + Date.now()); // Cache busting
-        const text = await res.text();
-        bookings = JSON.parse(text);
-        console.log("Bookings loaded:", bookings); // לוג לבדיקה
+        const res = await fetch(WEB_APP_URL + "?t=" + Date.now());
+        bookings = await res.json();
         renderSlots();
       } catch (e) {
-        console.error("שגיאה:", e);
+        console.error(e);
       }
     }
 
@@ -67,7 +65,7 @@
       
       slots.forEach(time => {
         const div = document.createElement('div');
-        div.className = `time-slot ${bookings[time] ? 'taken' : ''}`;
+        div.className = `time-slot ${bookings[time] && bookings[time].parent ? 'taken' : ''}`;
         
         if (bookings[time] && bookings[time].parent) {
           const b = bookings[time];
@@ -80,76 +78,16 @@
       });
     }
 
+    let currentTime = null;
+    let currentStep = null;
+
     function bookSlot(time) {
       currentTime = time;
       currentStep = 'parent';
       showDialog("שם ההורה");
     }
 
-    let currentTime = null;
-    let currentStep = null;
-
     function showDialog(title) {
       document.getElementById('dialog-title').textContent = title;
       document.getElementById('dialog-input').value = '';
-      document.getElementById('dialog').style.display = 'flex';
-      document.getElementById('dialog-input').focus();
-    }
-
-    function closeDialog() {
-      document.getElementById('dialog').style.display = 'none';
-    }
-
-    async function confirmDialog() {
-      const value = document.getElementById('dialog-input').value.trim();
-      if (!value) return alert("יש למלא את השדה");
-
-      if (currentStep === 'parent') {
-        bookings[currentTime] = { parent: value };
-        currentStep = 'child';
-        closeDialog();
-        setTimeout(() => showDialog("שם הילד / הילדה"), 300);
-      } else {
-        bookings[currentTime].child = value;
-        closeDialog();
-
-        await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "book", time: currentTime, parent: bookings[currentTime].parent, child: value })
-        });
-
-        await loadBookings();
-        showStatus(`✅ נרשם בהצלחה`, '#d4edda');
-      }
-    }
-
-    async function cancelMyBooking() {
-      const parentName = prompt("הכנס את שם ההורה לביטול:");
-      if (!parentName) return;
-
-      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "cancel", parent: parentName.trim() }) });
-      await loadBookings();
-      showStatus("✅ בוטל", '#f8d7da');
-    }
-
-    async function clearAllBookings() {
-      if (prompt("סיסמת מנהל:") !== "1234") return alert("סיסמה שגויה");
-      if (!confirm("מחק הכל?")) return;
-
-      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "clearAll" }) });
-      await loadBookings();
-    }
-
-    function showStatus(msg, color) {
-      const el = document.getElementById('status');
-      el.innerHTML = msg;
-      el.style.background = color;
-      setTimeout(() => { el.innerHTML = ''; el.style.background = ''; }, 4000);
-    }
-
-    // טעינה
-    loadBookings();
-    setInterval(loadBookings, 7000);
-  </script>
-</body>
-</html>
+      document.get
