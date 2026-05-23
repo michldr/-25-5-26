@@ -17,9 +17,10 @@
       cursor: pointer; 
     }
     .taken { 
-      background: #e74c3c; 
-      color: white; 
+      background: #fadbd8; 
+      color: #c0392b; 
       cursor: default; 
+      border: 1px solid #f5c6cb;
     }
     button { 
       padding: 16px; 
@@ -51,8 +52,6 @@
                    "17:00","17:10","17:20","17:30","17:40","17:50","18:00","18:10","18:20","18:30"];
 
     async function loadBookings() {
-      document.getElementById('slots').innerHTML = "<p style='text-align:center;'>טוען...</p>";
-      
       try {
         const res = await fetch(WEB_APP_URL + "?t=" + Date.now());
         const data = await res.json();
@@ -68,47 +67,84 @@
           div.className = `time-slot ${isTaken ? 'taken' : ''}`;
 
           if (isTaken) {
-            div.innerHTML = `${time} — <strong>${slot.parent}</strong> (${slot.child || ''})`;
+            // מציג את שם ההורה והילד באדום כפי שביקשת
+            div.innerHTML = `${time} — <strong>תפוס: ${slot.parent}</strong> (${slot.child || ''})`;
           } else {
-            div.innerHTML = `${time} — <span style="color:#27ae60">פנוי</span>`;
+            div.innerHTML = `${time} — <span style="color:#27ae60">פנוי לרישום</span>`;
             div.onclick = () => bookSlot(time);
           }
           container.appendChild(div);
         });
       } catch (e) {
-        document.getElementById('slots').innerHTML = "<p style='color:red;text-align:center;'>שגיאה בטעינה - רענן את הדף</p>";
+        console.error("שגיאה בטעינת הנתונים:", e);
       }
     }
 
-    function bookSlot(time) {
+    async function bookSlot(time) {
       const parent = prompt("שם ההורה:");
-      if (!parent) return;
+      if (!parent || !parent.trim()) return;
       const child = prompt("שם הילד / הילדה:");
-      if (!child) return;
+      if (!child || !child.trim()) return;
 
-      fetch(WEB_APP_URL, {
-        method: 'POST',
-        body: JSON.stringify({action: "book", time: time, parent: parent, child: child})
-      }).then(() => loadBookings());
+      document.getElementById('status').innerText = "שומר נתונים, אנא המתן...";
+      document.getElementById('status').style.color = "orange";
+
+      try {
+        // מעקף לבעיית ה-CORS של גוגל: שולחים כטקסט פשוט ומגדירים mode: 'no-cors'
+        await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({action: "book", time: time, parent: parent.trim(), child: child.trim()})
+        });
+
+        document.getElementById('status').innerText = "ההרשמה נשלחה! מעדכן רשימה...";
+        document.getElementById('status').style.color = "green";
+        
+        // נותנים לגוגל שיטס שנייה לעכל ומעדיפים רענון כפול כדי לוודא תצוגה
+        setTimeout(loadBookings, 1000);
+        setTimeout(loadBookings, 3000);
+      } catch (error) {
+        alert("אירעה שגיאה ברישום. אנא נסה שוב.");
+        document.getElementById('status').innerText = "";
+      }
     }
 
     async function cancelMyBooking() {
       const name = prompt("שם ההורה לביטול:");
-      if (!name) return;
-      await fetch(WEB_APP_URL, {method: 'POST', body: JSON.stringify({action: "cancel", parent: name})});
-      loadBookings();
+      if (!name || !name.trim()) return;
+      
+      document.getElementById('status').innerText = "מבטל רישום...";
+      
+      await fetch(WEB_APP_URL, {
+        method: 'POST', 
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({action: "cancel", parent: name.trim()})
+      });
+      
+      document.getElementById('status').innerText = "הבקשה נשלחה.";
+      setTimeout(loadBookings, 2000);
     }
 
     async function clearAllBookings() {
       if (prompt("סיסמת מנהל:") !== "1234") return alert("שגויה");
       if (confirm("למחוק הכל?")) {
-        await fetch(WEB_APP_URL, {method: 'POST', body: JSON.stringify({action: "clearAll"})});
-        loadBookings();
+        await fetch(WEB_APP_URL, {
+          method: 'POST', 
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({action: "clearAll"})
+        });
+        setTimeout(loadBookings, 2000);
       }
     }
 
+    // הפעלה ראשונית
     loadBookings();
-    setInterval(loadBookings, 8000);
+    
+    // רענון אוטומטי קבוע כל 6 שניות כדי למשוך את השמות החדשים מהשיטס
+    setInterval(loadBookings, 6000);
   </script>
 </body>
 </html>
