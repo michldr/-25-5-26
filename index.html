@@ -34,50 +34,6 @@
       color: white; 
       cursor: default; 
     }
-
-    /* Custom Dialog */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 340px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-      text-align: right;
-    }
-    .modal input {
-      width: 100%;
-      padding: 12px;
-      font-size: 17px;
-      border: 2px solid #3498db;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 15px;
-    }
-    .modal button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .ok-btn { background: #27ae60; color: white; }
-    .cancel-btn-modal { background: #95a5a6; color: white; }
-
     button {
       padding: 14px 24px;
       font-size: 17px;
@@ -104,6 +60,46 @@
       padding: 12px;
       border-radius: 8px;
     }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 340px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+    .modal input {
+      width: 100%;
+      padding: 12px;
+      font-size: 17px;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+    .modal button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .ok-btn { background: #27ae60; color: white; }
+    .cancel-btn-modal { background: #95a5a6; color: white; }
   </style>
 </head>
 <body>
@@ -127,6 +123,8 @@
   </div>
 
   <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwhLI_bqw5LonilgbHq4RRL-a06lQaZcsPKNWWOQMagxD0FTb2QXb6H0O1kFFrbIVBK/exec";
+    
     const slots = [
       "15:00", "15:10", "15:20", "15:30", "15:40", "15:50",
       "16:00", "16:10", "16:20", "16:30", "16:40", "16:50",
@@ -134,11 +132,21 @@
       "18:00", "18:10", "18:20", "18:30"
     ];
 
-    let bookings = JSON.parse(localStorage.getItem('bookings')) || {};
+    let bookings = {};
     let currentTime = null;
-    let currentStep = null; // 'parent' or 'child'
+    let currentStep = null;
+    const ADMIN_PASSWORD = "1234";   // שנה לסיסמה הרצויה
 
-    const ADMIN_PASSWORD = "1234";
+    async function loadBookings() {
+      try {
+        const res = await fetch(WEB_APP_URL);
+        bookings = await res.json();
+        renderSlots();
+      } catch (e) {
+        console.error(e);
+        alert("שגיאה בטעינת הנתונים");
+      }
+    }
 
     function renderSlots() {
       const container = document.getElementById('slots');
@@ -177,7 +185,7 @@
       document.getElementById('dialog').style.display = 'none';
     }
 
-    function confirmDialog() {
+    async function confirmDialog() {
       const value = document.getElementById('dialog-input').value.trim();
       if (!value) {
         alert("יש למלא את השדה");
@@ -188,51 +196,58 @@
         bookings[currentTime] = { parent: value };
         currentStep = 'child';
         closeDialog();
-        setTimeout(() => {
-          showDialog("שם הילד / הילדה", "");
-        }, 300);
+        setTimeout(() => showDialog("שם הילד / הילדה", ""), 300);
       } else {
         bookings[currentTime].child = value;
-        localStorage.setItem('bookings', JSON.stringify(bookings));
         closeDialog();
+
+        // שמירה בשרת
+        await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: "book",
+            time: currentTime,
+            parent: bookings[currentTime].parent,
+            child: value
+          })
+        });
+        
         renderSlots();
         showStatus(`✅ נרשם בהצלחה: ${bookings[currentTime].parent} (${value}) לשעה ${currentTime}`, '#d4edda');
       }
     }
 
-    function cancelMyBooking() {
+    async function cancelMyBooking() {
       const parentName = prompt("הכנס את שם ההורה לביטול:");
       if (!parentName || parentName.trim() === "") return;
 
-      let found = false;
-      Object.keys(bookings).forEach(time => {
-        if (bookings[time] && bookings[time].parent.toLowerCase() === parentName.trim().toLowerCase()) {
-          delete bookings[time];
-          found = true;
-        }
+      await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: "cancel",
+          parent: parentName.trim()
+        })
       });
 
-      if (found) {
-        localStorage.setItem('bookings', JSON.stringify(bookings));
-        renderSlots();
-        showStatus("✅ ההרשמה בוטלה בהצלחה", '#f8d7da');
-      } else {
-        alert("❌ לא נמצאה הרשמה לשם ההורה שהוזן");
-      }
+      await loadBookings();
+      showStatus("✅ ההרשמה בוטלה בהצלחה", '#f8d7da');
     }
 
-    function clearAllBookings() {
+    async function clearAllBookings() {
       const password = prompt("הכנס סיסמת מנהל:");
-      if (password === ADMIN_PASSWORD) {
-        if (confirm("⚠️ האם אתה בטוח שברצונך למחוק את כל ההרשמות?")) {
-          bookings = {};
-          localStorage.removeItem('bookings');
-          renderSlots();
-          showStatus("🧹 כל ההרשמות נמחקו בהצלחה", '#fff3cd');
-        }
-      } else {
+      if (password !== ADMIN_PASSWORD) {
         alert("❌ סיסמה שגויה");
+        return;
       }
+      if (!confirm("⚠️ האם אתה בטוח שברצונך למחוק את כל ההרשמות?")) return;
+
+      await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: "clearAll" })
+      });
+
+      await loadBookings();
+      showStatus("🧹 כל ההרשמות נמחקו בהצלחה", '#fff3cd');
     }
 
     function showStatus(message, color) {
@@ -246,7 +261,7 @@
     }
 
     // טעינה ראשונית
-    renderSlots();
+    loadBookings();
   </script>
 </body>
 </html>
