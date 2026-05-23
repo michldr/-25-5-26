@@ -7,34 +7,21 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; text-align: right; }
     h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; font-size: 28px; }
-    .time-slot { background: white; padding: 16px 20px; margin: 8px 0; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); font-size: 17.5px; cursor: pointer; }
-    .time-slot:hover { transform: translateY(-2px); }
+    .time-slot { background: white; padding: 18px; margin: 10px 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 18px; cursor: pointer; }
     .taken { background: #e74c3c; color: white; cursor: default; }
-    button { padding: 14px 24px; font-size: 17px; margin: 10px 5px; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 320px; }
+    button { padding: 15px; font-size: 17px; margin: 15px 5px; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 320px; }
     .cancel-btn { background: #e74c3c; color: white; }
-    .admin-btn { background: #8e44ad; color: white; font-size: 15px; max-width: 220px; margin: 20px auto; display: block; }
-    .status { text-align: center; margin: 15px; font-weight: bold; padding: 12px; border-radius: 8px; }
-    .error { color: red; text-align: center; margin: 20px; }
+    .admin-btn { background: #8e44ad; color: white; }
+    .status { text-align: center; margin: 20px; padding: 15px; border-radius: 8px; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>יום מהו"ת 25/5/26</h1>
-  <div id="slots"></div>
+  <div id="slots">טוען שעות...</div>
   <div class="status" id="status"></div>
 
   <button class="cancel-btn" onclick="cancelMyBooking()">בטל את ההרשמה שלי</button>
   <button class="admin-btn" onclick="clearAllBookings()">נקה הכל (מנהל)</button>
-
-  <div id="dialog" class="modal">
-    <div class="modal-content">
-      <h3 id="dialog-title"></h3>
-      <input type="text" id="dialog-input" placeholder="הקלד כאן...">
-      <div class="modal-buttons">
-        <button class="cancel-btn-modal" onclick="closeDialog()">ביטול</button>
-        <button class="ok-btn" onclick="confirmDialog()">אישור</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwhLI_bqw5LonilgbHq4RRL-a06lQaZcsPKNWWOQMagxD0FTb2QXb6H0O1kFFrbIVBK/exec";
@@ -45,106 +32,73 @@
 
     async function loadBookings() {
       const container = document.getElementById('slots');
-      container.innerHTML = "<p>טוען...</p>";
-      
+      container.innerHTML = "<p style='text-align:center;'>טוען...</p>";
+
       try {
         const res = await fetch(WEB_APP_URL + "?t=" + Date.now());
-        if (!res.ok) throw new Error("שגיאת שרת");
         bookings = await res.json();
-        renderSlots();
+        
+        container.innerHTML = '';
+        slots.forEach(time => {
+          const div = document.createElement('div');
+          div.className = `time-slot ${bookings[time] && bookings[time].parent ? 'taken' : ''}`;
+          
+          if (bookings[time] && bookings[time].parent) {
+            div.innerHTML = `${time} — <strong>${bookings[time].parent}</strong> (${bookings[time].child || ''})`;
+          } else {
+            div.innerHTML = `${time} — <span style="color:#27ae60">פנוי</span>`;
+            div.onclick = () => bookSlot(time);
+          }
+          container.appendChild(div);
+        });
       } catch (e) {
+        container.innerHTML = `<p style="color:red; text-align:center;">שגיאה בטעינת הנתונים<br>נסה לרענן את הדף</p>`;
         console.error(e);
-        container.innerHTML = `<p class="error">שגיאה בטעינת הנתונים.<br>נסה לרענן (F5)</p>`;
       }
     }
 
-    function renderSlots() {
-      const container = document.getElementById('slots');
-      container.innerHTML = '';
+    function bookSlot(time) {
+      const parent = prompt("שם ההורה:");
+      if (!parent || parent.trim() === "") return;
       
-      slots.forEach(time => {
-        const div = document.createElement('div');
-        div.className = `time-slot ${bookings[time] && bookings[time].parent ? 'taken' : ''}`;
-        
-        if (bookings[time] && bookings[time].parent) {
-          const b = bookings[time];
-          div.innerHTML = `${time} — <strong>${b.parent}</strong> (${b.child || ''})`;
-        } else {
-          div.innerHTML = `${time} — <span style="color:#27ae60">פנוי</span>`;
-          div.onclick = () => bookSlot(time);
-        }
-        container.appendChild(div);
+      const child = prompt("שם הילד / הילדה:");
+      if (!child || child.trim() === "") return;
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: "book",
+          time: time,
+          parent: parent.trim(),
+          child: child.trim()
+        })
+      }).then(() => {
+        loadBookings();
+        document.getElementById('status').innerHTML = "✅ נרשם בהצלחה";
+        setTimeout(() => document.getElementById('status').innerHTML = '', 3000);
       });
     }
 
-    let currentTime = null;
-    let currentStep = null;
-
-    function bookSlot(time) {
-      currentTime = time;
-      currentStep = 'parent';
-      showDialog("שם ההורה");
-    }
-
-    function showDialog(title) {
-      document.getElementById('dialog-title').textContent = title;
-      document.getElementById('dialog-input').value = '';
-      document.getElementById('dialog').style.display = 'flex';
-      document.getElementById('dialog-input').focus();
-    }
-
-    function closeDialog() {
-      document.getElementById('dialog').style.display = 'none';
-    }
-
-    async function confirmDialog() {
-      const value = document.getElementById('dialog-input').value.trim();
-      if (!value) return alert("יש למלא את השדה");
-
-      if (currentStep === 'parent') {
-        bookings[currentTime] = { parent: value };
-        currentStep = 'child';
-        closeDialog();
-        setTimeout(() => showDialog("שם הילד / הילדה"), 300);
-      } else {
-        bookings[currentTime].child = value;
-        closeDialog();
-
-        await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "book", time: currentTime, parent: bookings[currentTime].parent, child: value })
-        });
-
-        await loadBookings();
-        showStatus(`✅ נרשם בהצלחה`, '#d4edda');
-      }
-    }
-
     async function cancelMyBooking() {
-      const parentName = prompt("הכנס את שם ההורה לביטול:");
-      if (!parentName) return;
-
-      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "cancel", parent: parentName.trim() }) });
-      await loadBookings();
-      showStatus("✅ ההרשמה בוטלה", '#f8d7da');
+      const name = prompt("שם ההורה לביטול:");
+      if (!name) return;
+      
+      await fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: "cancel", parent: name.trim() })
+      });
+      loadBookings();
     }
 
     async function clearAllBookings() {
-      if (prompt("סיסמת מנהל:") !== "1234") return alert("סיסמה שגויה");
-      if (!confirm("מחק הכל?")) return;
-
-      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "clearAll" }) });
-      await loadBookings();
+      if (prompt("סיסמת מנהל:") !== "1234") return alert("שגויה");
+      if (confirm("למחוק את כל ההרשמות?")) {
+        await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "clearAll" }) });
+        loadBookings();
+      }
     }
 
-    function showStatus(msg, color) {
-      const el = document.getElementById('status');
-      el.innerHTML = msg;
-      el.style.background = color;
-      setTimeout(() => { el.innerHTML = ''; el.style.background = ''; }, 4000);
-    }
-
-    // טעינה
+    // התחלה
     loadBookings();
     setInterval(loadBookings, 8000);
   </script>
