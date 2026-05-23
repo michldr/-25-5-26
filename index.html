@@ -21,25 +21,14 @@
       color: white; 
       cursor: default; 
     }
-    button { 
-      padding: 16px; 
-      font-size: 17px; 
-      margin: 15px 5px; 
-      border: none; 
-      border-radius: 8px; 
-      cursor: pointer; 
-      width: 100%; 
-      max-width: 340px; 
-    }
+    button { padding: 16px; font-size: 17px; margin: 15px 5px; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 340px; }
     .cancel-btn { background: #e74c3c; color: white; }
     .admin-btn { background: #8e44ad; color: white; }
-    .status { text-align: center; margin: 20px; padding: 15px; border-radius: 8px; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>יום מהו"ת 25/5/26</h1>
   <div id="slots">טוען שעות...</div>
-  <div class="status" id="status"></div>
 
   <button class="cancel-btn" onclick="cancelMyBooking()">בטל את ההרשמה שלי</button>
   <button class="admin-btn" onclick="clearAllBookings()">נקה הכל (מנהל)</button>
@@ -50,76 +39,63 @@
     const slots = ["15:00","15:10","15:20","15:30","15:40","15:50","16:00","16:10","16:20","16:30","16:40","16:50",
                    "17:00","17:10","17:20","17:30","17:40","17:50","18:00","18:10","18:20","18:30"];
 
-    let bookings = {};
-
     async function loadBookings() {
-      document.getElementById('slots').innerHTML = "<p style='text-align:center;'>טוען...</p>";
+      document.getElementById('slots').innerHTML = "<p style='text-align:center;color:#666;'>טוען...</p>";
       
       try {
         const res = await fetch(WEB_APP_URL + "?t=" + Date.now());
-        bookings = await res.json();
+        const data = await res.json();
 
         const container = document.getElementById('slots');
         container.innerHTML = '';
 
         slots.forEach(time => {
-          const slotData = bookings[time];
-          const isTaken = slotData && slotData.parent && slotData.parent.trim() !== "";
+          const slot = data[time] || {};
+          const isTaken = slot.parent && slot.parent.trim() !== "";
 
           const div = document.createElement('div');
           div.className = `time-slot ${isTaken ? 'taken' : ''}`;
-          
+
           if (isTaken) {
-            div.innerHTML = `${time} — <strong>${slotData.parent}</strong> (${slotData.child || ''})`;
+            div.innerHTML = `${time} — <strong>${slot.parent}</strong> (${slot.child || ''})`;
           } else {
-            div.innerHTML = `${time} — <span style="color:#27ae60">פנוי</span>`;
+            div.innerHTML = `${time} — <span style="color:#27ae60"><strong>פנוי</strong></span>`;
             div.onclick = () => bookSlot(time);
           }
           container.appendChild(div);
         });
       } catch (e) {
-        document.getElementById('slots').innerHTML = `<p style="color:red;text-align:center;">שגיאה בטעינה - רענן את הדף</p>`;
+        document.getElementById('slots').innerHTML = `<p style="color:red;text-align:center;">שגיאה בטעינה - רענן את הדף (F5)</p>`;
       }
     }
 
     function bookSlot(time) {
       const parent = prompt("שם ההורה:");
-      if (!parent || parent.trim() === "") return;
-      
+      if (!parent) return;
       const child = prompt("שם הילד / הילדה:");
-      if (!child || child.trim() === "") return;
+      if (!child) return;
 
       fetch(WEB_APP_URL, {
         method: 'POST',
-        body: JSON.stringify({ 
-          action: "book", 
-          time: time, 
-          parent: parent.trim(), 
-          child: child.trim() 
-        })
+        body: JSON.stringify({action: "book", time: time, parent: parent, child: child})
       }).then(() => loadBookings());
     }
 
     async function cancelMyBooking() {
       const name = prompt("שם ההורה לביטול:");
       if (!name) return;
-      
-      await fetch(WEB_APP_URL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: "cancel", parent: name.trim() }) 
-      });
+      await fetch(WEB_APP_URL, {method: 'POST', body: JSON.stringify({action: "cancel", parent: name})});
       loadBookings();
     }
 
     async function clearAllBookings() {
-      if (prompt("סיסמת מנהל:") !== "1234") return alert("שגויה");
+      if (prompt("סיסמה:") !== "1234") return alert("שגויה");
       if (confirm("למחוק הכל?")) {
-        await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "clearAll" }) });
+        await fetch(WEB_APP_URL, {method: 'POST', body: JSON.stringify({action: "clearAll"})});
         loadBookings();
       }
     }
 
-    // טעינה
     loadBookings();
     setInterval(loadBookings, 8000);
   </script>
