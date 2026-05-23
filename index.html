@@ -5,99 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>יום מהו"ת 25/5/26</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 0; 
-      padding: 20px; 
-      background: #f4f4f4; 
-      text-align: right; 
-    }
-    h1 { 
-      text-align: center; 
-      color: #2c3e50; 
-      margin-bottom: 25px;
-      font-size: 28px;
-    }
-    .time-slot {
-      background: white;
-      padding: 16px 20px;
-      margin: 8px 0;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      font-size: 17.5px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; text-align: right; }
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; font-size: 28px; }
+    .time-slot { background: white; padding: 16px 20px; margin: 8px 0; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); font-size: 17.5px; cursor: pointer; transition: all 0.2s; }
     .time-slot:hover { transform: translateY(-2px); }
-    .taken { 
-      background: #e74c3c; 
-      color: white; 
-      cursor: default; 
-    }
-    button {
-      padding: 14px 24px;
-      font-size: 17px;
-      margin: 10px 5px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      max-width: 320px;
-    }
+    .taken { background: #e74c3c; color: white; cursor: default; }
+    button { padding: 14px 24px; font-size: 17px; margin: 10px 5px; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 320px; }
     .cancel-btn { background: #e74c3c; color: white; }
-    .admin-btn { 
-      background: #8e44ad; 
-      color: white; 
-      font-size: 15px;
-      max-width: 220px;
-      margin: 20px auto;
-      display: block;
-    }
-    .status { 
-      text-align: center; 
-      margin: 15px; 
-      font-weight: bold; 
-      padding: 12px;
-      border-radius: 8px;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 340px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    }
-    .modal input {
-      width: 100%;
-      padding: 12px;
-      font-size: 17px;
-      border: 2px solid #3498db;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 15px;
-    }
-    .modal button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+    .admin-btn { background: #8e44ad; color: white; font-size: 15px; max-width: 220px; margin: 20px auto; display: block; }
+    .status { text-align: center; margin: 15px; font-weight: bold; padding: 12px; border-radius: 8px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 340px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+    .modal input { width: 100%; padding: 12px; font-size: 17px; border: 2px solid #3498db; border-radius: 8px; margin: 10px 0; }
+    .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+    .modal button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; }
     .ok-btn { background: #27ae60; color: white; }
     .cancel-btn-modal { background: #95a5a6; color: white; }
   </style>
@@ -110,7 +31,6 @@
   <button class="cancel-btn" onclick="cancelMyBooking()">בטל את ההרשמה שלי</button>
   <button class="admin-btn" onclick="clearAllBookings()">נקה הכל (מנהל)</button>
 
-  <!-- Custom Dialog -->
   <div id="dialog" class="modal">
     <div class="modal-content">
       <h3 id="dialog-title"></h3>
@@ -125,17 +45,12 @@
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwhLI_bqw5LonilgbHq4RRL-a06lQaZcsPKNWWOQMagxD0FTb2QXb6H0O1kFFrbIVBK/exec";
     
-    const slots = [
-      "15:00", "15:10", "15:20", "15:30", "15:40", "15:50",
-      "16:00", "16:10", "16:20", "16:30", "16:40", "16:50",
-      "17:00", "17:10", "17:20", "17:30", "17:40", "17:50",
-      "18:00", "18:10", "18:20", "18:30"
-    ];
+    const slots = ["15:00","15:10","15:20","15:30","15:40","15:50","16:00","16:10","16:20","16:30","16:40","16:50","17:00","17:10","17:20","17:30","17:40","17:50","18:00","18:10","18:20","18:30"];
 
     let bookings = {};
     let currentTime = null;
     let currentStep = null;
-    const ADMIN_PASSWORD = "1234";   // שנה לסיסמה הרצויה
+    const ADMIN_PASSWORD = "1234";
 
     async function loadBookings() {
       try {
@@ -143,8 +58,7 @@
         bookings = await res.json();
         renderSlots();
       } catch (e) {
-        console.error(e);
-        alert("שגיאה בטעינת הנתונים");
+        console.error("שגיאה בטעינה:", e);
       }
     }
 
@@ -173,9 +87,8 @@
       showDialog("שם ההורה", "");
     }
 
-    function showDialog(title, placeholder) {
+    function showDialog(title) {
       document.getElementById('dialog-title').textContent = title;
-      document.getElementById('dialog-input').placeholder = placeholder;
       document.getElementById('dialog-input').value = '';
       document.getElementById('dialog').style.display = 'flex';
       document.getElementById('dialog-input').focus();
@@ -187,81 +100,55 @@
 
     async function confirmDialog() {
       const value = document.getElementById('dialog-input').value.trim();
-      if (!value) {
-        alert("יש למלא את השדה");
-        return;
-      }
+      if (!value) return alert("יש למלא את השדה");
 
       if (currentStep === 'parent') {
         bookings[currentTime] = { parent: value };
         currentStep = 'child';
         closeDialog();
-        setTimeout(() => showDialog("שם הילד / הילדה", ""), 300);
+        setTimeout(() => showDialog("שם הילד / הילדה"), 300);
       } else {
         bookings[currentTime].child = value;
         closeDialog();
 
-        // שמירה בשרת
         await fetch(WEB_APP_URL, {
           method: 'POST',
-          body: JSON.stringify({
-            action: "book",
-            time: currentTime,
-            parent: bookings[currentTime].parent,
-            child: value
-          })
+          body: JSON.stringify({ action: "book", time: currentTime, parent: bookings[currentTime].parent, child: value })
         });
-        
-        renderSlots();
-        showStatus(`✅ נרשם בהצלחה: ${bookings[currentTime].parent} (${value}) לשעה ${currentTime}`, '#d4edda');
+
+        await loadBookings();           // ← זה התיקון העיקרי
+        showStatus(`✅ נרשם בהצלחה: ${bookings[currentTime].parent} (${value})`, '#d4edda');
       }
     }
 
     async function cancelMyBooking() {
       const parentName = prompt("הכנס את שם ההורה לביטול:");
-      if (!parentName || parentName.trim() === "") return;
+      if (!parentName) return;
 
-      await fetch(WEB_APP_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: "cancel",
-          parent: parentName.trim()
-        })
-      });
-
+      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "cancel", parent: parentName.trim() }) });
       await loadBookings();
       showStatus("✅ ההרשמה בוטלה בהצלחה", '#f8d7da');
     }
 
     async function clearAllBookings() {
-      const password = prompt("הכנס סיסמת מנהל:");
-      if (password !== ADMIN_PASSWORD) {
-        alert("❌ סיסמה שגויה");
-        return;
-      }
-      if (!confirm("⚠️ האם אתה בטוח שברצונך למחוק את כל ההרשמות?")) return;
+      if (prompt("הכנס סיסמת מנהל:") !== ADMIN_PASSWORD) return alert("סיסמה שגויה");
+      if (!confirm("מחק הכל?")) return;
 
-      await fetch(WEB_APP_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: "clearAll" })
-      });
-
+      await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "clearAll" }) });
       await loadBookings();
-      showStatus("🧹 כל ההרשמות נמחקו בהצלחה", '#fff3cd');
+      showStatus("🧹 הכל נמחק", '#fff3cd');
     }
 
-    function showStatus(message, color) {
-      const statusEl = document.getElementById('status');
-      statusEl.innerHTML = message;
-      statusEl.style.background = color;
-      setTimeout(() => {
-        statusEl.innerHTML = '';
-        statusEl.style.background = '';
-      }, 5000);
+    function showStatus(msg, color) {
+      const el = document.getElementById('status');
+      el.innerHTML = msg;
+      el.style.background = color;
+      setTimeout(() => { el.innerHTML = ''; el.style.background = ''; }, 4000);
     }
 
-    // טעינה ראשונית
+    // טעינה + רענון כל 8 שניות
     loadBookings();
+    setInterval(loadBookings, 8000);
   </script>
 </body>
 </html>
