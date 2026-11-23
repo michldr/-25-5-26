@@ -14,15 +14,15 @@ const SLOTS = [
 ];
 
 const SHEET_NAME = "הרשמות";
-const HEADERS = ["שעה", "שם ההורה", "שם הילד/ה", "קוד ביטול", "זמן הרשמה"];
+const HEADERS = ["שעה", "שם ההורה", "שם הילד/ה", "זמן הרשמה"];
 const MAX_NAME_LENGTH = 60;
 
 // ---------- נקודות כניסה ----------
 
-// קריאה ציבורית: מחזירה רק אילו שעות תפוסות, בלי שמות
+// קריאה ציבורית: מחזירה את השעות התפוסות ואת שם הילד/ה בכל שעה
 function doGet() {
   const rows = readRows_(getSheet_());
-  return json_({ ok: true, taken: rows.map(r => r.time) });
+  return json_({ ok: true, taken: rows.map(r => ({ time: r.time, child: r.child })) });
 }
 
 function doPost(e) {
@@ -77,20 +77,15 @@ function book_(req) {
     return { ok: false, error: child + " כבר רשום/ה לשעה " + same.time + ". כדי להחליף שעה, בטלו קודם את ההרשמה הקיימת." };
   }
 
-  const code = String(Math.floor(1000 + Math.random() * 9000));
-  sheet.appendRow([time, parent, child, code, new Date()]);
+  sheet.appendRow([time, parent, child, new Date()]);
   sortSheet_(sheet);
-  return { ok: true, time: time, code: code };
+  return { ok: true, time: time };
 }
 
 function cancel_(req) {
-  const time = String(req.time || "");
-  const code = String(req.code || "").trim();
   const sheet = getSheet_();
-  const row = readRows_(sheet).find(r => r.time === time);
-  if (!row || row.code !== code) {
-    return { ok: false, error: "השעה וקוד הביטול לא תואמים" };
-  }
+  const row = readRows_(sheet).find(r => r.time === String(req.time || ""));
+  if (!row) return { ok: false, error: "ההרשמה הזו כבר בוטלה" };
   sheet.deleteRow(row.row);
   return { ok: true };
 }
@@ -104,11 +99,8 @@ function adminList_() {
 }
 
 function adminCancel_(req) {
-  const sheet = getSheet_();
-  const row = readRows_(sheet).find(r => r.time === String(req.time || ""));
-  if (!row) return { ok: false, error: "לא נמצאה הרשמה בשעה הזו" };
-  sheet.deleteRow(row.row);
-  return adminList_();
+  const result = cancel_(req);
+  return result.ok ? adminList_() : result;
 }
 
 function clearAll_() {
@@ -140,17 +132,16 @@ function getSheet_() {
     sheet.getRange("1:1").setFontWeight("bold");
     sheet.setRightToLeft(true);
   }
-  // שמירה כטקסט, כדי ש"16:00" לא יהפוך לשעה ו"0123" לא יהפוך למספר
+  // שמירה כטקסט, כדי ש"16:00" לא יהפוך לערך של שעה
   sheet.getRange("A:A").setNumberFormat("@");
-  sheet.getRange("D:D").setNumberFormat("@");
   return sheet;
 }
 
 function readRows_(sheet) {
   const last = sheet.getLastRow();
   if (last < 2) return [];
-  return sheet.getRange(2, 1, last - 1, 4).getDisplayValues()
-    .map((v, i) => ({ row: i + 2, time: v[0].trim(), parent: v[1], child: v[2], code: v[3].trim() }))
+  return sheet.getRange(2, 1, last - 1, 3).getDisplayValues()
+    .map((v, i) => ({ row: i + 2, time: v[0].trim(), parent: v[1], child: v[2] }))
     .filter(r => r.time);
 }
 

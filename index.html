@@ -15,10 +15,8 @@
       --brand-dark: #23477a;
       --free: #1e8a4c;
       --free-bg: #eaf7ef;
-      --taken: #9aa3af;
-      --taken-bg: #f1f2f4;
-      --mine: #2f5d9e;
-      --mine-bg: #e8f0fb;
+      --taken: #2f5d9e;
+      --taken-bg: #e8f0fb;
       --danger: #c0392b;
       --danger-bg: #fdecea;
       --radius: 14px;
@@ -43,24 +41,14 @@
     header p { margin: 0; opacity: .9; }
 
     .summary {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
       background: var(--card); border-radius: var(--radius);
       padding: 14px 18px; margin: -14px 0 16px; position: relative;
       box-shadow: 0 4px 14px rgba(0,0,0,.08);
     }
     .summary .count { font-weight: 700; font-size: 18px; }
     .summary .hint { color: var(--muted); font-size: 14px; }
-
-    .card {
-      background: var(--card); border-radius: var(--radius);
-      padding: 16px 18px; margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.05);
-    }
-    .mine-card { border-right: 5px solid var(--mine); }
-    .mine-card h2 { margin: 0 0 8px; font-size: 18px; }
-    .mine-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
-    .mine-item:first-of-type { border-top: 0; }
-    .mine-item small { color: var(--muted); display: block; }
+    .legend { display: flex; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+    .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -1px; margin-left: 5px; }
 
     .hour { margin-bottom: 18px; }
     .hour h3 { margin: 0 0 8px; font-size: 15px; color: var(--muted); font-weight: 600; }
@@ -69,18 +57,17 @@
 
     .slot {
       border: 1.5px solid transparent; border-radius: 12px;
-      padding: 12px 4px; font: inherit; text-align: center; cursor: pointer;
-      transition: transform .08s, box-shadow .15s;
+      padding: 12px 6px; font: inherit; text-align: center; cursor: pointer;
+      min-width: 0; transition: transform .08s, box-shadow .15s;
     }
+    .slot:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.1); }
     .slot .t { display: block; font-size: 18px; font-weight: 700; direction: ltr; }
-    .slot .s { display: block; font-size: 13px; }
+    .slot .s { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .slot.free { background: var(--free-bg); color: var(--free); border-color: #bfe5cd; }
-    .slot.free:hover { box-shadow: 0 3px 10px rgba(30,138,76,.2); transform: translateY(-1px); }
-    .slot.taken { background: var(--taken-bg); color: var(--taken); cursor: not-allowed; }
-    .slot.taken .t { text-decoration: line-through; }
-    .slot.mine { background: var(--mine-bg); color: var(--mine); border-color: var(--mine); cursor: default; }
+    .slot.taken { background: var(--taken-bg); color: var(--taken); border-color: #c9d9f1; }
+    .slot.taken .s { color: var(--text); font-weight: 600; }
 
-    .state { text-align: center; color: var(--muted); padding: 30px 10px; }
+    .state { text-align: center; color: var(--muted); padding: 30px 10px; background: var(--card); border-radius: var(--radius); }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
@@ -94,9 +81,9 @@
     .btn-danger { background: var(--danger); color: #fff; }
     .btn-danger-light { background: var(--danger-bg); color: var(--danger); }
     .btn-sm { padding: 7px 12px; font-size: 14px; }
-    .link-btn { background: none; border: 0; color: var(--brand); font: inherit; text-decoration: underline; cursor: pointer; padding: 4px; }
+    .link-btn { background: none; border: 0; color: var(--muted); font: inherit; text-decoration: underline; cursor: pointer; padding: 4px; }
 
-    footer { text-align: center; margin-top: 28px; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; }
+    footer { text-align: center; margin-top: 28px; font-size: 14px; }
 
     /* חלון קופץ */
     .overlay {
@@ -115,26 +102,21 @@
     .modal h2 { margin: 0 0 4px; font-size: 21px; }
     .modal .sub { margin: 0 0 16px; color: var(--muted); }
     label { display: block; font-weight: 600; margin: 12px 0 5px; }
-    input, select {
+    input {
       width: 100%; padding: 12px; font: inherit; font-size: 16px;
       border: 1.5px solid var(--line); border-radius: 10px; background: #fff;
     }
-    input:focus, select:focus { outline: none; border-color: var(--brand); }
+    input:focus { outline: none; border-color: var(--brand); }
     .actions { display: flex; gap: 10px; margin-top: 20px; }
     .actions .btn { flex: 1; }
     .error { background: var(--danger-bg); color: var(--danger); padding: 10px 12px; border-radius: 10px; margin-top: 14px; display: none; }
     .error.show { display: block; }
-    .code-box {
-      text-align: center; background: var(--mine-bg); border-radius: 12px;
-      padding: 14px; margin: 16px 0;
-    }
-    .code-box .code { font-size: 34px; font-weight: 800; letter-spacing: 6px; color: var(--mine); direction: ltr; }
 
     .admin-table { width: 100%; border-collapse: collapse; font-size: 15px; }
     .admin-table th, .admin-table td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: right; }
     .admin-table th { color: var(--muted); font-weight: 600; font-size: 13px; }
     .admin-table td.time { direction: ltr; text-align: right; font-weight: 700; white-space: nowrap; }
-    .admin-table tr.empty td { color: var(--taken); }
+    .admin-table tr.empty td { color: #9aa3af; }
     .admin-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 
     .toast {
@@ -154,17 +136,17 @@
 
   <main class="wrap">
     <div class="summary">
-      <div>
-        <div class="count" id="count">טוען...</div>
-        <div class="hint">לחצו על שעה פנויה כדי להירשם</div>
+      <div class="count" id="count">טוען...</div>
+      <div class="hint">לחצו על שעה פנויה כדי להירשם, או על הרשמה קיימת כדי לבטל אותה</div>
+      <div class="legend">
+        <span><i style="background:var(--free-bg);border:1px solid #bfe5cd"></i>פנוי</span>
+        <span><i style="background:var(--taken-bg);border:1px solid #c9d9f1"></i>רשום</span>
       </div>
     </div>
 
-    <div id="mine"></div>
     <div id="slots"><div class="state">טוען שעות...</div></div>
 
     <footer>
-      <button class="link-btn" onclick="openCancelByCode()">ביטול הרשמה עם קוד</button>
       <button class="link-btn" onclick="openAdminLogin()">כניסת מנהל</button>
     </footer>
   </main>
@@ -172,53 +154,32 @@
   <!-- הרשמה -->
   <div class="overlay" id="bookModal" onclick="closeOnBackdrop(event)">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
-      <div id="bookForm">
-        <h2 id="bookTitle">הרשמה לשעה <span id="bookTime" dir="ltr"></span></h2>
-        <p class="sub">הפגישה נמשכת 10 דקות</p>
-        <form onsubmit="submitBooking(event)">
-          <label for="parentName">שם ההורה</label>
-          <input id="parentName" autocomplete="name" maxlength="60" required>
-          <label for="childName">שם הילד/ה</label>
-          <input id="childName" maxlength="60" required>
-          <div class="error" id="bookError"></div>
-          <div class="actions">
-            <button type="submit" class="btn btn-primary" id="bookSubmit">אישור הרשמה</button>
-            <button type="button" class="btn btn-light" onclick="closeModals()">ביטול</button>
-          </div>
-        </form>
-      </div>
-      <div id="bookDone" hidden>
-        <h2>נרשמתם בהצלחה!</h2>
-        <p class="sub" id="bookDoneText"></p>
-        <div class="code-box">
-          <div>קוד הביטול שלכם</div>
-          <div class="code" id="bookDoneCode"></div>
-        </div>
-        <p class="sub">שמרו את הקוד (למשל בצילום מסך). תצטרכו אותו אם תרצו לבטל או להחליף שעה. במכשיר הזה ההרשמה תופיע גם בראש הדף.</p>
+      <h2 id="bookTitle">הרשמה לשעה <span id="bookTime" dir="ltr"></span></h2>
+      <p class="sub">הפגישה נמשכת 10 דקות</p>
+      <form onsubmit="submitBooking(event)">
+        <label for="parentName">שם ההורה</label>
+        <input id="parentName" autocomplete="name" maxlength="60" required>
+        <label for="childName">שם הילד/ה</label>
+        <input id="childName" maxlength="60" required>
+        <div class="error" id="bookError"></div>
         <div class="actions">
-          <button type="button" class="btn btn-primary" onclick="closeModals()">סגירה</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ביטול עם קוד -->
-  <div class="overlay" id="cancelModal" onclick="closeOnBackdrop(event)">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
-      <h2 id="cancelTitle">ביטול הרשמה</h2>
-      <p class="sub">בחרו את השעה שבה נרשמתם והקלידו את קוד הביטול שקיבלתם בהרשמה.</p>
-      <form onsubmit="submitCancelByCode(event)">
-        <label for="cancelTime">שעה</label>
-        <select id="cancelTime" required></select>
-        <label for="cancelCode">קוד ביטול</label>
-        <input id="cancelCode" inputmode="numeric" maxlength="4" required>
-        <div class="error" id="cancelError"></div>
-        <div class="actions">
-          <button type="submit" class="btn btn-danger" id="cancelSubmit">בטל הרשמה</button>
+          <button type="submit" class="btn btn-primary" id="bookSubmit">הרשמה</button>
           <button type="button" class="btn btn-light" onclick="closeModals()">חזרה</button>
         </div>
       </form>
-      <p class="sub" style="margin-top:16px">איבדתם את הקוד? פנו למחנך/ת והם יבטלו עבורכם.</p>
+    </div>
+  </div>
+
+  <!-- ביטול -->
+  <div class="overlay" id="cancelModal" onclick="closeOnBackdrop(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+      <h2 id="cancelTitle">ביטול הרשמה</h2>
+      <p class="sub" id="cancelText"></p>
+      <div class="error" id="cancelError"></div>
+      <div class="actions">
+        <button type="button" class="btn btn-danger" id="cancelSubmit" onclick="submitCancel()">ביטול ההרשמה</button>
+        <button type="button" class="btn btn-light" onclick="closeModals()">חזרה</button>
+      </div>
     </div>
   </div>
 
@@ -249,7 +210,7 @@
       </div>
       <div class="error" id="adminError"></div>
       <table class="admin-table">
-        <thead><tr><th>שעה</th><th>הורה</th><th>ילד/ה</th><th></th></tr></thead>
+        <thead><tr><th>שעה</th><th>ילד/ה</th><th>הורה</th><th></th></tr></thead>
         <tbody id="adminRows"></tbody>
       </table>
       <div class="actions">
@@ -270,8 +231,7 @@
                    "18:00","18:10","18:20","18:30","18:40","18:50",
                    "19:00","19:10","19:20","19:30","19:40","19:50"];
 
-    const STORAGE_KEY = "mahut-2-12-26-bookings";
-    let taken = new Set();
+    let taken = new Map(); // שעה -> שם הילד/ה
     let loaded = false;
     let selectedTime = null;
     let adminPassword = null;
@@ -290,70 +250,28 @@
         const res = await fetch(WEB_APP_URL + "?t=" + Date.now());
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || "bad response");
-        taken = new Set(data.taken);
+        taken = new Map(data.taken.map(b => [b.time, b.child]));
         loaded = true;
-        pruneMyBookings();
         render();
       } catch (e) {
         console.error("שגיאה בטעינת הנתונים:", e);
         if (!loaded) {
           document.getElementById("slots").innerHTML =
-            '<div class="card state">לא הצלחנו לטעון את השעות.<br><br>' +
+            '<div class="state">לא הצלחנו לטעון את השעות.<br><br>' +
             '<button class="btn btn-primary" onclick="loadBookings()">נסו שוב</button></div>';
           document.getElementById("count").textContent = "";
         }
       }
     }
 
-    // ---------- ההרשמות שלי (נשמרות במכשיר) ----------
-
-    function getMyBookings() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-      catch (e) { return []; }
-    }
-    function setMyBookings(list) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
-    }
-    // מסיר מהמכשיר הרשמות שכבר לא קיימות בשרת (למשל אם המנהל ביטל אותן)
-    function pruneMyBookings() {
-      const list = getMyBookings();
-      const kept = list.filter(b => taken.has(b.time));
-      if (kept.length !== list.length) setMyBookings(kept);
-    }
-
     // ---------- תצוגה ----------
 
     function render() {
-      const mine = getMyBookings();
-      const mineTimes = new Set(mine.map(b => b.time));
       const free = slots.filter(t => !taken.has(t)).length;
-
       document.getElementById("count").textContent =
         free === 0 ? "כל השעות תפוסות" :
         free === 1 ? "נותרה שעה פנויה אחת" :
         `נותרו ${free} שעות פנויות מתוך ${slots.length}`;
-
-      // כרטיס "ההרשמה שלי"
-      const mineEl = document.getElementById("mine");
-      mineEl.innerHTML = "";
-      if (mine.length) {
-        const card = el("div", "card mine-card");
-        card.appendChild(el("h2", "", mine.length > 1 ? "ההרשמות שלכם" : "ההרשמה שלכם"));
-        mine.slice().sort((a, b) => a.time.localeCompare(b.time)).forEach(b => {
-          const row = el("div", "mine-item");
-          const info = el("div");
-          const strong = el("strong", "", b.time);
-          strong.dir = "ltr";
-          info.appendChild(strong);
-          info.appendChild(document.createTextNode(" · " + b.child));
-          info.appendChild(el("small", "", "קוד ביטול: " + b.code));
-          const btn = el("button", "btn btn-danger-light btn-sm", "ביטול");
-          btn.onclick = () => cancelMine(b, btn);
-          row.append(info, btn);
-          card.appendChild(row);
-        });
-        mineEl.appendChild(card);
-      }
 
       // השעות, מקובצות לפי שעה עגולה
       const container = document.getElementById("slots");
@@ -367,16 +285,18 @@
         section.appendChild(el("h3")).appendChild(range);
         const grid = el("div", "grid");
         byHour[h].forEach(t => {
-          const isMine = mineTimes.has(t);
-          const isTaken = taken.has(t);
-          const btn = el("button", "slot " + (isMine ? "mine" : isTaken ? "taken" : "free"));
+          const child = taken.get(t);
+          const btn = el("button", "slot " + (child !== undefined ? "taken" : "free"));
           btn.type = "button";
           btn.appendChild(el("span", "t", t));
-          btn.appendChild(el("span", "s", isMine ? "שלכם" : isTaken ? "תפוס" : "פנוי"));
-          if (isTaken || isMine) {
-            btn.disabled = true;
-            btn.setAttribute("aria-label", `${t} ${isMine ? "ההרשמה שלכם" : "תפוס"}`);
+          if (child !== undefined) {
+            const name = el("span", "s", child);
+            name.title = child;
+            btn.appendChild(name);
+            btn.setAttribute("aria-label", `${t} ${child}, לחצו לביטול`);
+            btn.onclick = () => openCancel(t);
           } else {
+            btn.appendChild(el("span", "s", "פנוי"));
             btn.setAttribute("aria-label", `${t} פנוי, לחצו להרשמה`);
             btn.onclick = () => openBooking(t);
           }
@@ -399,16 +319,12 @@
     function openBooking(time) {
       selectedTime = time;
       document.getElementById("bookTime").textContent = time;
-      document.getElementById("bookForm").hidden = false;
-      document.getElementById("bookDone").hidden = true;
       hideError("bookError");
-      setBusy("bookSubmit", false, "אישור הרשמה");
-      openModal("bookModal");
-      // ממלא מראש את שם ההורה מהרשמה קודמת במכשיר (נוח להורים לכמה ילדים)
-      const prev = getMyBookings()[0];
-      const parentInput = document.getElementById("parentName");
-      if (prev && !parentInput.value) parentInput.value = prev.parent || "";
+      setBusy("bookSubmit", false, "הרשמה");
       document.getElementById("childName").value = "";
+      openModal("bookModal");
+      // שם ההורה נשאר מהרשמה קודמת (נוח להורים לכמה ילדים)
+      const parentInput = document.getElementById("parentName");
       (parentInput.value ? document.getElementById("childName") : parentInput).focus();
     }
 
@@ -424,91 +340,51 @@
         const res = await api({ action: "book", time: selectedTime, parent, child });
         if (!res.ok) {
           showError("bookError", res.error || "ההרשמה נכשלה");
-          setBusy("bookSubmit", false, "אישור הרשמה");
+          setBusy("bookSubmit", false, "הרשמה");
           if (res.code === "TAKEN") loadBookings();
           return;
         }
-        setMyBookings([...getMyBookings(), { time: res.time, parent, child, code: res.code }]);
-        taken.add(res.time);
+        taken.set(res.time, child);
         render();
-        document.getElementById("bookDoneText").textContent = `${child} רשום/ה לשעה ${res.time}.`;
-        document.getElementById("bookDoneCode").textContent = res.code;
-        document.getElementById("bookForm").hidden = true;
-        document.getElementById("bookDone").hidden = false;
+        closeModals();
+        toast(`נרשמתם! ${child} לשעה ${res.time}`);
       } catch (e) {
         console.error(e);
         showError("bookError", "אין חיבור לשרת. בדקו את החיבור לאינטרנט ונסו שוב.");
-        setBusy("bookSubmit", false, "אישור הרשמה");
+        setBusy("bookSubmit", false, "הרשמה");
       }
     }
 
     // ---------- ביטול ----------
 
-    async function cancelMine(b, btn) {
-      // אישור בשתי לחיצות, בלי חלון confirm
-      if (btn.dataset.armed !== "1") {
-        btn.dataset.armed = "1";
-        btn.textContent = "לחצו שוב לאישור";
-        btn.className = "btn btn-danger btn-sm";
-        setTimeout(() => { if (btn.isConnected && btn.dataset.armed === "1") render(); }, 4000);
-        return;
-      }
-      btn.disabled = true;
-      btn.textContent = "מבטל...";
-      try {
-        const res = await api({ action: "cancel", time: b.time, code: b.code });
-        if (!res.ok) {
-          toast(res.error || "הביטול נכשל");
-        } else {
-          toast(`ההרשמה לשעה ${b.time} בוטלה`);
-        }
-        // בכל מקרה מסירים מהמכשיר: אם הקוד לא תאם, ההרשמה כבר לא שלנו
-        setMyBookings(getMyBookings().filter(x => x.time !== b.time));
-        await loadBookings();
-      } catch (e) {
-        console.error(e);
-        toast("אין חיבור לשרת, נסו שוב");
-        render();
-      }
-    }
-
-    function openCancelByCode() {
-      const select = document.getElementById("cancelTime");
-      select.innerHTML = "";
-      const takenSlots = slots.filter(t => taken.has(t));
-      if (!takenSlots.length) {
-        select.appendChild(new Option("אין כרגע הרשמות", ""));
-      } else {
-        takenSlots.forEach(t => select.appendChild(new Option(t, t)));
-      }
-      document.getElementById("cancelCode").value = "";
+    function openCancel(time) {
+      selectedTime = time;
+      document.getElementById("cancelText").textContent =
+        `לבטל את ההרשמה של ${taken.get(time)} לשעה ${time}?`;
       hideError("cancelError");
-      setBusy("cancelSubmit", false, "בטל הרשמה");
+      setBusy("cancelSubmit", false, "ביטול ההרשמה");
       openModal("cancelModal");
     }
 
-    async function submitCancelByCode(ev) {
-      ev.preventDefault();
-      const time = document.getElementById("cancelTime").value;
-      const code = document.getElementById("cancelCode").value.trim();
-      if (!time) return showError("cancelError", "אין הרשמות לבטל");
-      hideError("cancelError");
+    async function submitCancel() {
+      const time = selectedTime;
       setBusy("cancelSubmit", true, "מבטל...");
       try {
-        const res = await api({ action: "cancel", time, code });
+        const res = await api({ action: "cancel", time });
         if (!res.ok) {
           showError("cancelError", res.error || "הביטול נכשל");
-          setBusy("cancelSubmit", false, "בטל הרשמה");
+          setBusy("cancelSubmit", false, "ביטול ההרשמה");
+          loadBookings();
           return;
         }
-        setMyBookings(getMyBookings().filter(x => x.time !== time));
+        taken.delete(time);
+        render();
         closeModals();
         toast(`ההרשמה לשעה ${time} בוטלה`);
-        loadBookings();
       } catch (e) {
         console.error(e);
         showError("cancelError", "אין חיבור לשרת, נסו שוב");
-        setBusy("cancelSubmit", false, "בטל הרשמה");
+        setBusy("cancelSubmit", false, "ביטול ההרשמה");
       }
     }
 
@@ -568,8 +444,8 @@
         const b = byTime[t];
         const tr = el("tr", b ? "" : "empty");
         tr.appendChild(el("td", "time", t));
-        tr.appendChild(el("td", "", b ? b.parent : "פנוי"));
-        tr.appendChild(el("td", "", b ? b.child : ""));
+        tr.appendChild(el("td", "", b ? b.child : "פנוי"));
+        tr.appendChild(el("td", "", b ? b.parent : ""));
         const td = el("td");
         if (b) {
           const btn = el("button", "btn btn-danger-light btn-sm", "ביטול");
@@ -581,8 +457,7 @@
       });
 
       // מעדכן גם את הדף הראשי
-      taken = new Set(bookings.map(b => b.time));
-      pruneMyBookings();
+      taken = new Map(bookings.map(b => [b.time, b.child]));
       render();
       openModal("adminModal");
     }
