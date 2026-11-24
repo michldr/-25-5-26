@@ -120,7 +120,7 @@
     .admin-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 
     .toast {
-      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(120px);
+      position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-120px);
       background: #1f2a37; color: #fff; padding: 12px 18px; border-radius: 10px;
       transition: transform .25s, opacity .25s, visibility .25s; z-index: 20; max-width: calc(100% - 32px); text-align: center;
       opacity: 0; visibility: hidden;
@@ -174,10 +174,10 @@
   <div class="overlay" id="cancelModal" onclick="closeOnBackdrop(event)">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
       <h2 id="cancelTitle">ביטול הרשמה</h2>
-      <p class="sub" id="cancelText"></p>
+      <p class="sub" id="cancelText" style="color:var(--text);font-size:17px"></p>
       <div class="error" id="cancelError"></div>
       <div class="actions">
-        <button type="button" class="btn btn-danger" id="cancelSubmit" onclick="submitCancel()">ביטול ההרשמה</button>
+        <button type="button" class="btn btn-danger" id="cancelSubmit" onclick="submitCancel()">כן, לבטל</button>
         <button type="button" class="btn btn-light" onclick="closeModals()">חזרה</button>
       </div>
     </div>
@@ -360,9 +360,9 @@
     function openCancel(time) {
       selectedTime = time;
       document.getElementById("cancelText").textContent =
-        `לבטל את ההרשמה של ${taken.get(time)} לשעה ${time}?`;
+        `הפעולה תבטל את ההרשמה של "${taken.get(time)}" (שעה ${time}). האם אתה בטוח?`;
       hideError("cancelError");
-      setBusy("cancelSubmit", false, "ביטול ההרשמה");
+      setBusy("cancelSubmit", false, "כן, לבטל");
       openModal("cancelModal");
     }
 
@@ -373,7 +373,7 @@
         const res = await api({ action: "cancel", time });
         if (!res.ok) {
           showError("cancelError", res.error || "הביטול נכשל");
-          setBusy("cancelSubmit", false, "ביטול ההרשמה");
+          setBusy("cancelSubmit", false, "כן, לבטל");
           loadBookings();
           return;
         }
@@ -384,7 +384,7 @@
       } catch (e) {
         console.error(e);
         showError("cancelError", "אין חיבור לשרת, נסו שוב");
-        setBusy("cancelSubmit", false, "ביטול ההרשמה");
+        setBusy("cancelSubmit", false, "כן, לבטל");
       }
     }
 
